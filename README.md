@@ -1,6 +1,6 @@
 # Crane library
 
-This git repository is python library for [Ilmatar](digitwin.fi/ilmatar) crane located at [AIIC](aalto.fi/aiic) premises.  
+This git repository is python library for [Ilmatar](https://www.digitwin.fi/ilmatar) crane located at [AIIC](https://www.aalto.fi/aiic) premises.  
 It contains functions to get crane's location and move the crane via its OPC UA Interface.  
 
 The current version works with following OPC UA interfaces versions:

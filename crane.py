@@ -1,6 +1,6 @@
 from opcua import Client
 from opcua import ua
-
+import datetime
 
 class Crane(object):
     """Definition of Ilmatar Crane interface through OPC UA."""
@@ -56,6 +56,29 @@ class Crane(object):
             NS + ";s=SCF.PLC.DX_Custom_V.Status.Trolley.Position.Position_m")
         self._node_bridge_position_m = self.client.get_node(
             NS + ";s=SCF.PLC.DX_Custom_V.Status.Bridge.Position.Position_m")
+
+        
+        # Loads
+        self._node_hoist_current_load = self.client.get_node(
+            NS + ";s=SCF.PLC.DX_Custom_V.Status.Hoist.Load.Load_t")
+        self._node_hoist_current_tared_load = self.client.get_node(
+            NS + ";s=SCF.PLC.DX_Custom_V.Status.Hoist.Load.TaredLoad_t")
+
+        # Datetime
+        self._node_datime_year = self.client.get_node(
+            NS + ";s=SCF.PLC.DX_Custom_V.Datetime.Year")
+        self._node_datime_month = self.client.get_node(
+            NS + ";s=SCF.PLC.DX_Custom_V.Datetime.Month")
+        self._node_datime_day = self.client.get_node(
+            NS + ";s=SCF.PLC.DX_Custom_V.Datetime.Day")
+        self._node_datime_hour = self.client.get_node(
+            NS + ";s=SCF.PLC.DX_Custom_V.Datetime.Hour")
+        self._node_datime_minute = self.client.get_node(
+            NS + ";s=SCF.PLC.DX_Custom_V.Datetime.Minute")
+        self._node_datime_second = self.client.get_node(
+            NS + ";s=SCF.PLC.DX_Custom_V.Datetime.Second")
+        self._node_datime_millisecond = self.client.get_node(
+            NS + ";s=SCF.PLC.DX_Custom_V.Datetime.Millisecond")
 
         # Control signal status
 
@@ -279,6 +302,26 @@ class Crane(object):
         self.set_target_hoist(z)
         return x, y, z
 
+    """Functions to get weight from the crane"""
+
+    def get_load(self):
+        """Get current load from crane."""
+        return self._node_hoist_current_load.get_value()
+
+    def get_load_tared(self):
+        """Get current tared load from crane."""
+        return self._node_hoist_current_tared_load.get_value()
+    
+    def get_datetime(self):
+        """Get Python datetime object from the crane."""
+        year = self._node_datime_year.get_value()
+        month = self._node_datime_month.get_value()
+        day = self._node_datime_day.get_value()
+        hour = self._node_datime_hour.get_value()
+        minute = self._node_datime_minute.get_value()
+        second = self._node_datime_second.get_value()
+        millisecond = self._node_datime_millisecond.get_value()
+        return datetime.datetime(year,month,day,hour,minute,second,millisecond*1000)
 
     """Functions for getting distance to target"""
 

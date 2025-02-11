@@ -27,7 +27,7 @@ Git repository can be cloned with following command:
 
 ## Installing python libraries
 Program needs following python libraries to work:  
-* [FreeOpcUa  (0.98.7)](https://github.com/FreeOpcUa/python-opcua)
+* [FreeOpcUa](https://github.com/FreeOpcUa/opcua-asyncio)
 
 These can be installed with command from repository's root folder:
 * `pip3 install -r requirements.txt`

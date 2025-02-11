@@ -1,23 +1,25 @@
-from asyncua import Client
-from asyncua import ua
-import datetime
+#Do not use this one, use new_crane.py instead, it is the one that has been tested and improved
 
-class Crane(object):
+
+from asyncua.sync import Client
+from asyncua import ua
+import datetime 
+
+class Crane(object): 
     """Definition of Ilmatar Crane interface through OPC UA."""
 
-    def __init__(self, clientaddress):
-        """Initialization of the Ilmatar Crane."""
+    def __init__(self, clientaddress) -> None:
         self.x = 1
         self.client = Client(clientaddress)
-        self.client.connect()
+        self.client.connect() 
 
-        #NS = "ns=" + str(self.client.get_namespace_index("AIIC:"))
+        #NS = "ns=" + str(self.client.get_namespace_index("AIIC"))
         NS = "ns=5"
 
         # Watchdog
         self._node_watchdog = self.client.get_node(
             NS + ";s=DX_Custom_V.Controls.Watchdog")
-
+        
         # Accescode
         self._node_access_code = self.client.get_node(
             NS + ";s=DX_Custom_V.Controls.AccessCode")
@@ -86,7 +88,6 @@ class Crane(object):
         # Not currently used
         self._node_trolley_direction_forward_request = self.client.get_node(
             NS + ";s=DX_Custom_V.Status.Trolley.ControlSignals.Direction1_Request")
-
         self._node_trolley_direction_backwards_request = self.client.get_node(
             NS + ";s=DX_Custom_V.Status.Trolley.ControlSignals.Direction2_Request")
         self._node_trolley_speed_request = self.client.get_node(
@@ -97,10 +98,9 @@ class Crane(object):
             NS + ";s=DX_Custom_V.Status.Trolley.ControlSignals.SpeedFeedback_mmin")
 
 
-        # Not currently useds
+        # Not currently used
         self._node_bridge_direction_forward_request = self.client.get_node(
             NS + ";s=DX_Custom_V.Status.Bridge.ControlSignals.Direction1_Request")
-
         self._node_bridge_direction_backward_request = self.client.get_node(
             NS + ";s=DX_Custom_V.Status.Bridge.ControlSignals.Direction2_Request")
         self._node_bridge_speed_request = self.client.get_node(
@@ -114,7 +114,6 @@ class Crane(object):
         # Not currently used
         self._node_hoist_direction_up_request = self.client.get_node(
             NS + ";s=DX_Custom_V.Status.Hoist.ControlSignals.Direction1_Request")
-
         self._node_hoist_direction_down_request = self.client.get_node(
             NS + ";s=DX_Custom_V.Status.Hoist.ControlSignals.Direction2_Request")
         self._node_hoist_speed_request = self.client.get_node(
@@ -142,7 +141,6 @@ class Crane(object):
         self.set_target_current_position()
 
 
-
     """Functions related to connecting to opcua server"""
 
     def connect(self):
@@ -155,77 +153,81 @@ class Crane(object):
         self.client.disconnect()
 
 
-
     """Functions related to watchdog"""
 
     def get_watchdog(self):
         """Get Watchdog value."""
-        return self._node_watchdog.get_value()
+        return self._node_watchdog.read_value()
 
 
     # Not working
     def set_watchdog(self, watchdog_value):
         """Set Watchdog to number x."""
-        self._node_watchdog.set_value(ua.DataValue(ua.Variant(watchdog_value, ua.VariantType.Int16)))
+        self._node_watchdog.write_value(ua.DataValue(ua.Variant(watchdog_value, ua.VariantType.Int16)))
 
 
     def increment_watchdog(self):
         """Increment Watchdog by 1."""
+        print(self._watchdog_value)
         self._watchdog_value = (self._watchdog_value % 30000) + 1
         self.set_watchdog(self._watchdog_value)
 
+    #Not tested if works
+    #def reset_watchdog(self): 
+     #   """Reset the watchdog to zero"""
+      #  self._watchdog_value = 0 
 
-
-    """Functions related to accesscode"""
+    
+    
+        """Functions related to accesscode"""
 
     def get_accesscode(self):
         """Get AccessCode value."""
-        return self._node_access_code.get_value()
+        return self._node_access_code.read_value()
 
 
     def set_accesscode(self, accesscode):
         """Set AccessCode to number x."""
-        self._node_access_code.set_value(ua.DataValue(ua.Variant(accesscode, ua.VariantType.Int32)))
+        self._node_access_code.write_value(ua.DataValue(ua.Variant(accesscode, ua.VariantType.Int32)))
 
-
-
+    
     """Functions to get position for crane"""
 
     def get_trolley_position_absolute(self):
         """Get absolute position for Trolley in mm (laser)."""
-        return self._node_trolley_position_m.get_value() * 1000
+        return self._node_trolley_position_m.read_value() * 1000
 
 
     def get_motorcontroller_trolley_value(self):
         """Get value from motorcontroller for Trolley."""
-        return self._node_trolley_position_mm.get_value()
+        return self._node_trolley_position_mm.read_value()
 
 
     def get_bridge_position_absolute(self):
         """Get absolute position for Bridge in mm (laser)."""
-        return self._node_bridge_position_m.get_value() * 1000
+        return self._node_bridge_position_m.read_value() * 1000
 
 
     def get_motorcontroller_bridge_value(self):
         """Get value from motorcontroller for Bridge."""
-        return self._node_bridge_position_mm.get_value()
+        return self._node_bridge_position_mm.read_value()
 
 
     def get_hoist_position_absolute(self):
         """ Get absolute position for Hoist in mm """
-        return self._node_hoist_position_m.get_value() * 1000
+        return self._node_hoist_position_m.read_value() * 1000
 
 
     def get_motorcontroller_hoist_value(self):
         """Get value from motorcontroller for Hoist."""
-        return self._node_hoist_position_mm.get_value()
+        return self._node_hoist_position_mm.read_value()
 
 
     def get_coordinates_absolute(self):
         """Get absolute position for Bridge,Trolley and Hoist in mm (laser)."""
-        return(self._node_bridge_position_mm.get_value(),
-               self._node_trolley_position_mm.get_value(),
-               self._node_hoist_position_mm.get_value())
+        return(self._node_bridge_position_mm.read_value(),
+               self._node_trolley_position_mm.read_value(),
+               self._node_hoist_position_mm.read_value())
 
 
     def get_motorcontroller_all(self):
@@ -235,41 +237,38 @@ class Crane(object):
                self.get_motorcontroller_hoist_value())
 
 
-
     """Functions to get positions with timestamp for bridge and trolley"""
 
     def get_motocontroller_bridge_value_with_timestamp(self):
         """Get value from motorcontroller for Bridge with timestamp."""
-        data = self._node_bridge_position_mm.get_data_value()
+        data = self._node_bridge_position_mm.read_data_value()
         return (data.Value.Value, data.SourceTimestamp.timestamp())
 
 
     def get_motocontroller_trolley_value_with_timestamp(self):
         """Get value from motorcontroller for trolley with timestamp."""
-        data = self._node_trolley_position_mm.get_data_value()
+        data = self._node_trolley_position_mm.read_data_value()
         return (data.Value.Value, data.SourceTimestamp.timestamp())
-
 
 
     """Functions to get speed with timestamp for crane"""
 
     def get_speed_bridge_value_with_timestamp(self):
         """Get value from motorcontroller for Bridge with timestamp."""
-        data = self._node_brige_speed_feedback.get_data_value()
+        data = self._node_brige_speed_feedback.read_data_value()
         return (data.Value.Value, data.SourceTimestamp.timestamp())
 
 
     def get_speed_hoist_value_with_timestamp(self):
         """Get value from motorcontroller for Bridge with timestamp."""
-        data = self._node_hoist_speed_feedback.get_data_value()
+        data = self._node_hoist_speed_feedback.read_data_value()
         return (data.Value.Value, data.SourceTimestamp.timestamp())
 
 
     def get_speed_trolley_value_with_timestamp(self):
         """Get value from motorcontroller for Bridge with timestamp."""
-        data = self._node_trolley_speed_feedback.get_data_value()
+        data = self._node_trolley_speed_feedback.read_data_value()
         return (data.Value.Value, data.SourceTimestamp.timestamp())
-
 
 
     """Crane target functions"""
@@ -307,21 +306,21 @@ class Crane(object):
 
     def get_load(self):
         """Get current load from crane."""
-        return self._node_hoist_current_load.get_value()
+        return self._node_hoist_current_load.read_value()
 
     def get_load_tared(self):
         """Get current tared load from crane."""
-        return self._node_hoist_current_tared_load.get_value()
+        return self._node_hoist_current_tared_load.read_value()
     
     def get_datetime(self):
         """Get Python datetime object from the crane."""
-        year = self._node_datime_year.get_value()
-        month = self._node_datime_month.get_value()
-        day = self._node_datime_day.get_value()
-        hour = self._node_datime_hour.get_value()
-        minute = self._node_datime_minute.get_value()
-        second = self._node_datime_second.get_value()
-        millisecond = self._node_datime_millisecond.get_value()
+        year = self._node_datime_year.read_value()
+        month = self._node_datime_month.read_value()
+        day = self._node_datime_day.read_value()
+        hour = self._node_datime_hour.read_value()
+        minute = self._node_datime_minute.read_value()
+        second = self._node_datime_second.read_value()
+        millisecond = self._node_datime_millisecond.read_value()
         return datetime.datetime(year,month,day,hour,minute,second,millisecond*1000)
 
     """Functions for getting distance to target"""
@@ -490,7 +489,7 @@ class Crane(object):
         return True
 
 
-    def move_hoist_to_target(self, fast=False):
+    def move_hoist_to_target(self, threshold=2, fast=False):
         """Moves hoist to target"""
 
         # Retrieve updated distance to target
@@ -503,19 +502,19 @@ class Crane(object):
         else:
             speed = self.ramp_speed_lower(dist_to_target)
 
-
-        if hoist_pos > (self.hoist_target):
-            self.move_hoist_down_speed(speed)
-            flag = 0
-        elif hoist_pos < (self.hoist_target):
-            self.move_hoist_up_speed(speed)
-            flag = 0
-        else:
+        if -threshold <= dist_to_target <= threshold: 
             self.stop_hoist()
             print("Hoist in target")
             flag = 1
-        return flag
+        elif dist_to_target > 0: 
+            self.move_hoist_down_speed(speed)
+            flag = 0
+        else:
+            self.move_hoist_up_speed(speed)
+            flag = 0
 
+        return flag
+    
 
     def move_hoist_to_target_lift(self):
         """Moves hoist to target fast"""
@@ -709,36 +708,36 @@ class Crane(object):
 
     def move_trolley_forward(self, boolean=True):
         """Set Move Trolley Forwardtrue or false."""
-        self._node_trolley_forward.set_value(ua.DataValue(ua.Variant(
+        self._node_trolley_forward.write_value(ua.DataValue(ua.Variant(
             boolean, ua.VariantType.Boolean)))
 
 
     def move_trolley_backward(self, boolean=True):
         """Set Move Trolley Backward true or false."""
-        self._node_trolley_backward.set_value(ua.DataValue(ua.Variant(
+        self._node_trolley_backward.write_value(ua.DataValue(ua.Variant(
             boolean, ua.VariantType.Boolean)))
 
 
     def move_bridge_forward(self, boolean=True):
         """Set Move Bridge Forward true or false."""
-        self._node_bridge_forward.set_value(ua.DataValue(ua.Variant(
+        self._node_bridge_forward.write_value(ua.DataValue(ua.Variant(
             boolean, ua.VariantType.Boolean)))
 
     def move_bridge_backward(self, boolean=True):
         """Set Move Bridge Backward  true or false."""
-        self._node_bridge_backward.set_value(ua.DataValue(ua.Variant(
+        self._node_bridge_backward.write_value(ua.DataValue(ua.Variant(
             boolean, ua.VariantType.Boolean)))
 
 
     def move_hoist_up(self, boolean=True):
         """Set Move Hoist up true or false."""
-        self._node_hoist_up.set_value(ua.DataValue(ua.Variant(
+        self._node_hoist_up.write_value(ua.DataValue(ua.Variant(
             boolean, ua.VariantType.Boolean)))
 
 
     def move_hoist_down(self, boolean=True):
         """Set Move Hoist down true or false."""
-        self._node_hoist_down.set_value(ua.DataValue(ua.Variant(
+        self._node_hoist_down.write_value(ua.DataValue(ua.Variant(
             boolean, ua.VariantType.Boolean)))
 
 
@@ -747,71 +746,71 @@ class Crane(object):
 
     def get_trolley_forward(self):
         """Get Trolley_Forward boolean value."""
-        return self._node_trolley_forward.get_value()
+        return self._node_trolley_forward.read_value()
 
 
     def get_trolley_backward(self):
         """Get Trolley_Backward boolean value."""
-        return self._node_trolley_backward.get_value()
+        return self._node_trolley_backward.read_value()
 
 
     def get_bridge_forward(self):
         """Get Bridge_Forward boolean value."""
-        return self._node_bridge_forward.get_value()
+        return self._node_bridge_forward.read_value()
 
 
     def get_bridge_backward(self):
         """Get Bridge_Backward boolean value."""
-        return self._node_bridge_backward.get_value()
+        return self._node_bridge_backward.read_value()
 
 
     def get_hoist_up(self):
         """Get Hoist_up boolean value."""
-        return self._node_hoist_up.get_value()
+        return self._node_hoist_up.read_value()
 
 
     def get_hoist_down(self):
         """Get Hoist_down boolean value."""
-        return self._node_hoist_down.get_value()
+        return self._node_hoist_down.read_value()
 
 
 
-    """Functins to set cranes speed"""
+    """Functions to set cranes speed"""
 
     def set_trolley_speed(self, speed):
         """Set speed Trolley in % 0-100"""
-        self._node_trolley_speed.set_value(ua.DataValue(ua.Variant(
+        self._node_trolley_speed.write_value(ua.DataValue(ua.Variant(
             speed, ua.VariantType.Float)))
 
 
     def set_bridge_speed(self, speed):
         """Set speed Bridge in % 0-100"""
-        self._node_bridge_speed.set_value(ua.DataValue(ua.Variant(
+        self._node_bridge_speed.write_value(ua.DataValue(ua.Variant(
             speed, ua.VariantType.Float)))
 
 
     def set_hoist_speed(self, speed):
         """Set speed Hoist in % 0-100"""
-        self._node_hoist_speed.set_value(ua.DataValue(ua.Variant(
+        self._node_hoist_speed.write_value(ua.DataValue(ua.Variant(
             speed, ua.VariantType.Float)))
 
 
 
-    """Functins to get cranes speed"""
+    """Functions to get cranes speed"""
 
     def get_trolley_speed(self):
         """Get speed Trolley in % 0-100"""
-        return self._node_trolley_speed.get_value()
+        return self._node_trolley_speed.read_value()
 
 
     def get_bridge_speed(self):
         """Get speed Bridge in % 0-100"""
-        return self._node_bridge_speed.get_value()
+        return self._node_bridge_speed.read_value()
 
 
     def get_hoist_speed(self):
         """Get speed Hoist in % 0-100"""
-        return self._node_hoist_speed.get_value()
+        return self._node_hoist_speed.read_value()
 
 
 
@@ -901,16 +900,16 @@ class Crane(object):
 
     def get_trolley_speed_request(self):
         """ Get requested/target speed (ref), return negative if request is backward """
-        inv = -1 if self._node_trolley_direction_backwards_request.get_value() else 1
-        return inv*self._node_trolley_speed_request.get_value()
+        inv = -1 if self._node_trolley_direction_backwards_request.read_value() else 1
+        return inv*self._node_trolley_speed_request.read_value()
 
 
     def get_trolley_speed_feedback(self):
-        return self._node_trolley_speed_feedback.get_value()
+        return self._node_trolley_speed_feedback.read_value()
 
 
     def get_trolley_speed_feedback_mmin(self):
-        return self._node_trolley_speed_feedback_mmin.get_value()
+        return self._node_trolley_speed_feedback_mmin.read_value()
 
 
     def get_trolley_status(self):
@@ -920,16 +919,16 @@ class Crane(object):
 
     def get_bridge_speed_request(self):
         """ Get requested/target speed (ref), return negative if request is backward """
-        inv = -1 if self._node_bridge_direction_backward_request.get_value() else 1
-        return inv*self._node_bridge_speed_request.get_value()
+        inv = -1 if self._node_bridge_direction_backward_request.read_value() else 1
+        return inv*self._node_bridge_speed_request.read_value()
 
 
     def get_bridge_speed_feedback(self):
-        return self._node_brige_speed_feedback.get_value()
+        return self._node_brige_speed_feedback.read_value()
 
 
     def get_bridge_speed_feedback_mmin(self):
-        return self._node_brige_speed_feedback_mmin.get_value()
+        return self._node_brige_speed_feedback_mmin.read_value()
 
 
     def get_bridge_status(self):
@@ -938,17 +937,17 @@ class Crane(object):
 
 
     def get_hoist_speed_feedback(self):
-        return self._node_hoist_speed_feedback.get_value()
+        return self._node_hoist_speed_feedback.read_value()
 
 
     def get_hoist_speed_feedback_mmin(self):
-        return self._node_hoist_speed_feedback_mmin.get_value()
+        return self._node_hoist_speed_feedback_mmin.read_value()
 
 
     def get_hoist_speed_request(self):
         """ Get requested/target speed (ref), return negative if request is down """
-        inv = -1 if self._node_hoist_direction_down_request.get_value() else 1
-        return inv*self._node_hoist_speed_request.get_value()
+        inv = -1 if self._node_hoist_direction_down_request.read_value() else 1
+        return inv*self._node_hoist_speed_request.read_value()
 
 
     def get_hoist_status(self):
@@ -1064,3 +1063,4 @@ class Crane(object):
         handle = sub.subscribe_data_change(var)
 
         return sub, handle
+

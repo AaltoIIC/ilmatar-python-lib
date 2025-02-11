@@ -4,7 +4,7 @@ import time
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
 
-from crane import Crane
+from new_crane import Crane
 
 class Watchdog():
     def __init__(self, url, accesscode):
@@ -32,14 +32,26 @@ class Watchdog():
             time.sleep(0.1)
             print("Incremented")
 
+    #def stop_all(): 
+
+
 
 if(__name__ == "__main__"):
     def main():
-        url = input("URL: ")
-        accesscode = int(input("Accescode: "))
-        while(not isinstance(accesscode, int)):
-            print("Accescode needs to be integer")
-            accesscode = int(input("Accescode: "))
+        try: 
+            f = open("accesscode_url.txt")
+            try: 
+                url = str(f.readline())
+                accesscode = int(f.readline())
+            except: 
+                print("Something went wrong with reading the file")
+            finally: 
+                f.close()
+        except: 
+            print("Something went wrong with opening the file")
+
+
+        print("Async library in use, watchdog code")
         print("\nInitializing crane connection...\n--Make sure the device is connected to correct WiFi network!--")
         watchdog = Watchdog(url, accesscode)
         print("...crane connection initialized.\n")

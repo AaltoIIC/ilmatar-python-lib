@@ -43,4 +43,4 @@ Examples can be found from folder [examples](/examples)
 * [MIT](/LICENSE.txt)  
 
 # Built with
-* [FreeOpcUa](https://github.com/FreeOpcUa/python-opcua)
+* [FreeOpcUa](https://github.com/FreeOpcUa/opcua-asyncio)

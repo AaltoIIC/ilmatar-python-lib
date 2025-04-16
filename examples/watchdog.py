@@ -12,6 +12,7 @@ class Watchdog():
         self.url = url
         self.crane = Crane(url)
         self.setAccesscode(accesscode)
+        self.crane.stop_all() #Initiate crane for autonomous driving
 
 
     def setAccesscode(self, accesscode=None):
